@@ -5,6 +5,7 @@
 *.so
 *.dylib
 go.sum
+goterm
 
 # editor
 .vscode
