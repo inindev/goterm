@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/mattn/go-tty"
@@ -42,13 +43,18 @@ func Monitor(port string, baud int) error {
 	defer tty.Close()
 
 	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, os.Interrupt)
+	signal.Notify(sig, os.Interrupt, syscall.SIGQUIT)
 	defer signal.Stop(sig)
 
 	go func() {
 		for {
-			<-sig
-			p.Write([]byte{0x1b, 0x03}) // send ctrl+c to tty
+			sig := <-sig
+			switch sig {
+			case os.Interrupt:
+				p.Write([]byte{0x1b, 0x03}) // send ctrl+c to tty
+			case syscall.SIGQUIT:
+				p.Write([]byte{0x1b, 0x1c}) // send ctrl+\ to tty
+			}
 		}
 	}()
 
