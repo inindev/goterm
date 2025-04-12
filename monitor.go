@@ -32,6 +32,8 @@ func Monitor(port string, baud int) error {
 			}
 			return err
 		}
+		p.ResetInputBuffer()
+		p.ResetOutputBuffer()
 		break
 	}
 	defer p.Close()
